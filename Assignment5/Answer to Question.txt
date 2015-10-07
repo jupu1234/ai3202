@@ -1,4 +1,7 @@
-The epsilon value that changes the route of my program is approximately 3.3. Any value less than epsilon = 3.3 has a different
-path than every any value of epsilon greater than 3.3. This is because when epsilon is 3.3 the program only runs once since delta will already be less than epsilon*(1 - gamma)/gamma. 
+The epsilon value that changes the route of my program is approximately 3.3. Any value less 
+than epsilon = 3.3 has a different path than every any value of epsilon greater than 3.3. 
+This is because when epsilon is 3.3 the program only runs once since delta will already 
+be less than epsilon*(1 - gamma)/gamma. 
 
-The values I tried for epsilon where 0, 0.001, 0.5, 2, 3, 4, 10. I noticed the change when I went from epsilon = 3 to epsilon = 4. I then found at 3.3 is when the change occurs.
+The values I tried for epsilon where 0, 0.001, 0.5, 2, 3, 4, 10. I noticed the change when 
+I went from epsilon = 3 to epsilon = 4. I then found at 3.3 is when the change occurs.
