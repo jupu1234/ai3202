@@ -43,6 +43,7 @@ class HMMfunc:
 					self.emis[state1][emission] = 1
 			else:
 				self.emis[state1] = {emission:1}
+
 	#Fills missing states into dictionaries and calculates probabilites with the soomthing equation and then prints the probabilities into Assignment8out.txt
 	def printdata(self):
 		for i in self.statespace:	
@@ -55,21 +56,18 @@ class HMMfunc:
 				if self.emis.has_key(i):
 					if not self.emis[i].has_key(j):	
 						self.emis[i][j] = 0
-		with open("Assignment8out.txt", "w") as text_file:
-			text_file.write("Marginal probabilities:\n")
-			text_file.write("\n")
-			for i in self.marg.keys():
-					text_file.write("P("+i+ ') = ' + str(round(self.marg[i]/float(len(self.Model)), 5)))
-					text_file.write('\n')
-			text_file.write("\n")			
-			text_file.write("Transition probabilities:\n")
-			for i in self.statespace:	
-				for j in self.statespace:
-					text_file.write("P("+j+"|"+i+") = "+str(round((self.trans[i][j]+1)/float((sum(self.trans[i].itervalues())+27)), 5)))
-					text_file.write('\n')
-			text_file.write('\n')
-			text_file.write("Emission probabilities:\n")	
-			for i in self.statespace:	
-				for j in self.statespace:
-					text_file.write("P("+j+"|"+i+") = "+str(round((self.emis[i][j]+1)/float((sum(self.emis[i].itervalues())+27)), 5)))
-					text_file.write('\n')	
+
+		print "Marginal probabilities:"
+		for i in self.marg.keys():
+					print "P("+i+ ') = ' + str(round(self.marg[i]/float(len(self.Model)), 5))	
+		print"\n"		
+		print "Transition probabilities:"
+		for i in self.statespace:	
+			for j in self.statespace:
+				print "P("+j+"|"+i+") = "+str(round((self.trans[i][j]+1)/float((sum(self.trans[i].itervalues())+27)), 5))
+		print"\n"
+		print "Emission probabilities:"	
+		for i in self.statespace:	
+			for j in self.statespace:
+				print "P("+j+"|"+i+") = "+str(round((self.emis[i][j]+1)/float((sum(self.emis[i].itervalues())+27)), 5))
+
