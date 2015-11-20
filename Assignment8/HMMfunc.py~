@@ -56,7 +56,7 @@ class HMMfunc:
 					if not self.emis[i].has_key(j):	
 						self.emis[i][j] = 0
 		with open("Assignment8out.txt", "w") as text_file:
-			text_file.write("Marginal probabilities:\n")
+			text_file.write("Marginal probabilities\n")
 			text_file.write("\n")
 			for i in self.marg.keys():
 					text_file.write("P("+i+ ') = ' + str(round(self.marg[i]/float(len(self.Model)), 5)))

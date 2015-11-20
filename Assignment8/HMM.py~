@@ -1,0 +1,58 @@
+statespace = []
+statespace.append('_')
+for i in range(97, 123):
+	statespace.append(chr(i))
+
+Model =[]
+with open("typos20.data") as manifesto:
+    for line in manifesto:
+        char = [elt.strip() for elt in line.split()]
+        Model.append(char)
+marg = {}
+trans = {}
+emis = {}
+for i in range(0, len(Model)-1):
+	state1 = Model[i][0]
+	state2 = Model[i+1][0]
+	emission = Model[i][1]
+	
+	if marg.has_key(state1):
+		marg[state1] += 1
+	else:
+		marg[state1] = 1
+
+	if trans.has_key(state1):
+		if trans[state1].has_key(state2):
+			trans[state1][state2] += 1
+		else:
+			trans[state1][state2] = 1
+	else:
+		trans[state1] = {state2:1}
+
+	if emis.has_key(state1):
+		if emis[state1].has_key(emission):
+			emis[state1][emission] += 1
+		else:
+			emis[state1][emission] = 1
+	else:
+		emis[state1] = {emission:1}
+
+
+for i in statespace:	
+	for j in statespace:
+		if trans.has_key(i):
+			if not trans[i].has_key(j):	
+				trans[i][j] = 0
+for i in statespace:	
+	for j in statespace:
+		if emis.has_key(i):
+			if not emis[i].has_key(j):	
+				emis[i][j] = 0				
+	
+for i in statespace:	
+	for j in statespace:
+		print "P( " + i + " | " + j + " ) = ", round((trans[j][i]+1)/float((sum(trans[j].itervalues())+27)), 5)
+
+for i in statespace:	
+	for j in statespace:
+		print "P( " + i + " | " + j + " ) = ", round((emis[j][i]+1)/float((sum(emis[j].itervalues())+27)), 5)
