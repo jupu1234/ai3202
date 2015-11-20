@@ -1,0 +1,161 @@
+import operator
+import math
+
+INF = 9999999999
+
+class HMMfunc:
+	#Opens data file and reads it into a list and initializes the dictionaries and the states
+	def __init__(self, infile1, infile2):
+		self.Model =[]
+		self.V =[]
+		self.statespace = []
+		self.path = []			
+		with open(infile1) as manifesto:
+    			for line in manifesto:
+        			char = [elt.strip() for elt in line.split()]
+        			self.Model.append(char)
+		with open(infile2) as manifesto:
+    			for line in manifesto:
+        			char = [elt.strip() for elt in line.split()]
+        			self.V.append(char)
+		self.statespace.append('_')
+		for i in range(97, 123):
+			self.statespace.append(chr(i))
+		self.marg = {}
+		self.trans = {}
+		self.emis = {}
+		self.margp = {}
+		self.transp = {}
+		self.emisp = {}
+	#calculates each time a letter is seen and the time it is typed wrong and the number of times the next letter will be seen with the current letter
+	#using dictionaries
+	def calcocc(self):
+		for i in range(0, len(self.Model)-1):
+			state1 = self.Model[i][0]
+			state2 = self.Model[i+1][0]
+			emission = self.Model[i][1]
+	
+			if self.marg.has_key(state1):
+				self.marg[state1] += 1
+			else:
+				self.marg[state1] = 1
+
+			if self.trans.has_key(state1):
+				if self.trans[state1].has_key(state2):
+					self.trans[state1][state2] += 1
+				else:
+					self.trans[state1][state2] = 1
+			else:
+				self.trans[state1] = {state2:1}
+
+			if self.emis.has_key(state1):
+				if self.emis[state1].has_key(emission):
+					self.emis[state1][emission] += 1
+				else:
+					self.emis[state1][emission] = 1
+			else:
+				self.emis[state1] = {emission:1}
+
+	#prints probabilities
+	def printdata(self):
+
+		print "Marginal probabilities:"
+		for i in self.statespace:
+			print "P("+i+') = '+str(self.margp[i])	
+		print"\n"		
+		print "Transition probabilities:"
+		for i in self.statespace:	
+			for j in self.statespace:
+				print "P("+j+"|"+i+") = "+str(self.transp[i][j])
+		print"\n"
+		print "Emission probabilities:"	
+		for i in self.statespace:	
+			for j in self.statespace:
+				print "P("+j+"|"+i+") = "+str(self.emisp[i][j])
+	
+	#fills in missing states and calculates probabilities
+	def calcprob(self):
+		for i in self.statespace:
+			if not self.margp.has_key(i):
+				self.margp[i] = self.marg[i]/float(len(self.Model))
+			for j in self.statespace:
+				if self.trans.has_key(i):
+					if not self.trans[i].has_key(j):	
+						self.trans[i][j] = 0
+				if self.transp.has_key(i):
+					self.transp[i][j] = 0
+				else:
+					self.transp[i] = {j:0}
+				if self.emis.has_key(i):
+					if not self.emis[i].has_key(j):	
+						self.emis[i][j] = 0
+				if self.emisp.has_key(i):
+					self.emisp[i][j] = 0
+				else:
+					self.emisp[i] = {j:0}
+		
+				self.transp[i][j] =  (self.trans[i][j]+1)/float((sum(self.trans[i].itervalues())+27))
+				self.emisp[i][j] = (self.emis[i][j])/float((sum(self.emis[i].itervalues())))
+				
+	#Viterbi Algorithim
+	def Viterbi(self):
+		output = {}
+		i = 1
+		#calculates initial state in the form P(X1|E1) = P(E1|X1)*P(X1) E1 being the output of file
+		for j in self.statespace:
+			if not self.emisp[self.V[0][1]][j] < 0.000000001:
+				output[j] = math.log(self.emisp[self.V[0][1]][j]) + math.log(self.margp[j])
+			else:
+				output[j] = 0	
+		key, maxval = self.checkmax(output)
+		self.path.append(key)
+		#calculates t+1 states in the form P(Xt|E1:t) = P(Xt|Xt-1)*P(Xt-1|E1:t-1)*P(Et|Xt)
+		while i < len(self.V):
+			for j in self.statespace:
+				if not self.emisp[self.V[i][1]][j] < 0.000000001:
+					output[j] = math.log(self.emisp[self.V[i][1]][j]) + math.log(self.transp[key][j]) + maxval
+				else:
+					output[j] = 0
+			key, maxval = self.checkmax(output)
+			self.path.append(key)
+			i += 1
+
+	#function that checks for the maximum probability value
+	def checkmax(self, inval):
+		tempval = INF
+		for key in inval:
+			if abs(inval[key]) < abs(tempval) and abs(inval[key]) > 0:
+				tempkey = key
+				tempval = inval[key]
+		return (tempkey, tempval)
+
+	def printpath(self):
+		tcount = 0
+		ecount = 0
+		btcount = 0
+		becount = 0
+		#prints out most likely path
+		print "Viterbi path taken----------------------"
+		for i in self.path:	
+			print i
+		#calculates error
+		for i in range(0, len(self.path)):
+			if self.path[i] is self.V[i][0]:
+				tcount += 1
+				ecount += 1
+			else:
+				tcount += 1
+			if self.V[i][0] is self.V[i][1]:
+				btcount += 1
+				becount += 1
+			else:
+				btcount += 1	
+		print "\n"
+		print "Error calculations--------------------------"
+		ER = 1 - float(ecount)/(tcount)
+		OER = 1 - float(becount)/(btcount)
+		print "Viterbi Error rate: "+"%"+str(round(ER, 4)*100)
+		print "Original Error rate: "+"%"+str(round(OER,4)*100)
+
+			
+
