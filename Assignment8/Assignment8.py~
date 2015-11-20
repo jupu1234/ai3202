@@ -6,5 +6,5 @@ prob.calcocc()
 prob.calcprob()
 #prob.printdata()
 prob.Viterbi()
-prob.printpath()
+#prob.printpath()
 

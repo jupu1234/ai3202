@@ -1,0 +1,9 @@
+from HMMfunc import *
+import sys
+
+filen = sys.argv[1]
+prob = HMMfunc(filen)
+prob.calcocc()
+prob.printdata()
+
+
